@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "includes/css_file.html" %}
+    <link href="{% static 'chat_app/css/custom_css/friends_list.css' %}" rel="stylesheet" />
+</head>
+<body>
+<div id="main-wrapper">
+    {% include "includes/index.html" %}
+    <div class="page-wrapper">
+        <div class="container-fluid friends-list">
+            <h4>Friends List</h4>
+            <div class="row">
+                {% for friend in friends %}
+                    <div class="col-md-2 mb-4 friend-card">
+                        <a href="{% url 'chat_with_user' friend.id %}">{{ friend.username }}</a>
+                    </div>
+                    {% if forloop.counter|divisibleby:5 and not forloop.last %}
+                        </div><div class="row">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'chat_app/assets/libs/jquery/dist/jquery.min.js' %}"></script>
+</body>
+{% include "includes/js_file.html" %}
+</html>

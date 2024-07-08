@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "includes/css_file.html" %}
+    <link href="{% static 'chat_app/css/custom_css/incoming_requests.css' %}" rel="stylesheet" />
+</head>
+<body>
+<div id="main-wrapper">
+    {% include "includes/index.html" %}
+    <div class="page-wrapper">
+        <div class="container-fluid">
+            <h4>Incoming Friend Requests</h4>
+            <div id="friend-requests-container">
+                {% if friend_requests %}
+                    {% for request in friend_requests %}
+                        <div class="friend-request" id="request-{{ request.id }}">
+                            <span>{{ request.from_user.username }}</span>
+                            <div>
+                                <button class="btn btn-success accept-btn" data-id="{{ request.id }}">Accept</button>
+                                <button class="btn btn-danger reject-btn" data-id="{{ request.id }}">Reject</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-requests">There are no new requests.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'chat_app/assets/libs/jquery/dist/jquery.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('.accept-btn, .reject-btn').click(function() {
+        var requestId = $(this).data('id');
+        var action = $(this).hasClass('accept-btn') ? 'accept' : 'reject';
+
+        $.ajax({
+            url: '{% url "incoming_requests" %}',
+            method: 'POST',
+            data: {
+                'request_id': requestId,
+                'action': action,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#request-' + requestId).remove();
+                    if ($('#friend-requests-container .friend-request').length === 0) {
+                        $('#friend-requests-container').html('<div class="no-requests">There are no new requests.</div>');
+                    }
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+    });
+});
+</script>
+</body>
+{% include "includes/js_file.html" %}
+</html>

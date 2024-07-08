@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "includes/css_file.html" %}
+    <link href="{% static 'chat_app/css/custom_css/chat.css' %}" rel="stylesheet" />
+</head>
+<body>
+<div id="main-wrapper">
+    {% include "includes/index.html" %}
+    <div class="page-wrapper">
+        <div class="container-fluid">
+            <div class="chat-box" id="chat-box">
+                {% for msg in messages %}
+                    <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                        <strong>{{ msg.sender.username }}</strong>: {{ msg.message }} <span>{{ msg.timestamp }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="chat-input">
+                <input type="text" id="message-input" class="form-control" placeholder="Type a message" />
+                <button id="send-message-btn" class="btn btn-primary">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'chat_app/assets/libs/jquery/dist/jquery.min.js' %}"></script>
+</body>
+{% include "includes/js_file.html" %}
+</html>
+
+<script>
+$(document).ready(function(){
+    var userId = {{ user_id|default:'null' }};
+
+    if (userId) {
+        function loadMessages() {
+            $.ajax({
+                url: '{% url "get_messages" user_id=0 %}'.replace('0', userId),
+                method: 'GET',
+                success: function(data) {
+                    $('#chat-box').html('');
+                    data.messages.forEach(function(msg) {
+                        var messageDiv = $('<div>').addClass('message');
+                        if (msg.sender === '{{ request.user.username }}') {
+                            messageDiv.addClass('sent');
+                        } else {
+                            messageDiv.addClass('received');
+                        }
+                        messageDiv.html('<strong>' + msg.sender + '</strong>: ' + msg.message + ' <span>' + msg.timestamp + '</span>');
+                        $('#chat-box').append(messageDiv);
+                    });
+                }
+            });
+        }
+
+        $('#send-message-btn').click(function(){
+            var message = $('#message-input').val();
+            $.ajax({
+                url: '{% url "chat_with_user" user_id=0 %}'.replace('0', userId),
+                method: 'POST',
+                data: {
+                    'message': message,
+                    'receiver_id': userId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        $('#message-input').val('');
+                        loadMessages();
+                    }
+                }
+            });
+        });
+
+        loadMessages();
+        setInterval(loadMessages, 5000); // Reload messages every 5 seconds
+    } else {
+        $('#send-message-btn').prop('disabled', true);
+        $('#message-input').prop('disabled', true);
+    }
+});
+</script>

@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+{% include "includes/css_file.html" %}
+<style type="text/css">
+.err_msg {
+color:red;
+font-weight: bold;
+}
+#submitcontainer{
+    float:right;
+} 
+</style>
+</head>
+
+
+<body>
+
+<div id="main-wrapper">
+
+       <!-- ============================================================== -->
+        <!-- Page wrapper  -->
+        <!-- ============================================================== -->
+        <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <div class="page-breadcrumb">
+                
+                <div class="row">
+                    <div class="col-12 d-flex no-block align-items-center">
+                        <h4 class="page-title">SignUp </h4>
+                        <!-- <div class="ml-auto text-right">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href=""><i class="fas fa-eye"></i></a></li>
+                                </ol>
+                            </nav>
+                            
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            
+            <div>
+            {% if error_data or success_data%}
+
+            <div class="col-md-12">
+            <div {% if error_data %} class="alert alert-danger" {% endif %} {% if success_data %} class="alert alert-success" {% endif %}>
+            {% if error_data %}
+            {{error_data.Error.message}} 
+
+            {% for error_details in error_data.Error.error_details %}
+            {{error_data..Error.error_details}}
+            </Br>
+            {{error_details.field}} -> {{error_details.message}}
+            {% endfor %}
+
+            {% endif %}
+            {% if success_data %}
+            <strong>Well done!</strong> {{success_data}}.
+            {% endif %}
+            </div>
+            </div>
+            {% endif %}
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+
+                            <form method="POST" id="frm" name="frm">
+                                {% csrf_token %}    
+                                <div class="card-body">
+                                    
+                                    <div class="form-group row">
+                                        <label for="Firstname" class="col-sm-2 text-left control-label col-form-label">First Name<span class="err_msg">*</span></label>
+                                        
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name"value="{{first_name}}" {% if data.id %} disabled="true" {% endif%}>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="Lastname" class="col-sm-2 text-left control-label col-form-label">Last Name</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" id="last_name"  name="last_name" placeholder="Last Name"value="{{data.last_name}}">
+                                        </div>
+                                    </div> 	
+
+                                    <div class="form-group row">
+                                        <label for="email" class="col-sm-2 text-left control-label col-form-label">Email<span class="err_msg" >*</span></label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control"  id="email" name="email" placeholder="abc@xxx.com">
+                                        </div>
+                                    </div> 
+
+                                    <div class="form-group row">
+                                        <label for="password" class="col-sm-2 text-left control-label col-form-label">Password<span class="err_msg" >*</span></label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control"  id="password" name="password" placeholder="Password">
+                                        </div>
+                                    </div> 
+
+                                    <div class="form-group row">
+                                        <label for="password1" class="col-sm-2 text-left control-label col-form-label">Confirm Password<span class="err_msg" >*</span></label>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control"  id="password1" name="password1" placeholder="Confirm Password">
+                                        </div>
+                                    </div> 
+
+                                    <div class="form-group row">
+                                        <label for="username" class="col-sm-2 text-left control-label col-form-label">User Name<span class="err_msg">*</span></label>
+                                        
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" id="username" name="username" placeholder="User Name"value="{{username}}" {% if data.id %} disabled="true" {% endif%}>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                        </div>
+                    </div>
+                </div><!-- endrow -->
+
+
+                <div class="row">
+                    <div class="col-md-12"  {% if view_mode %} style="display:none" {% endif%}>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row" id="submitcontainer">
+                                    <button type="submit" class="btn btn-primary" id="submit_frm">Submit</button>&nbsp;&nbsp;
+                                    <button type="reset" class="btn btn-danger">Cancel</button>
+                                </div>
+                                
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Container fluid  -->
+
+           
+    
+ 
+        </div><!-- End Page wrapper  -->
+        
+          
+    </div><!-- End Wrapper -->
+    
+	
+    <!-- All Jquery -->
+    <!-- ============================================================== -->
+
+<script src="{% static 'chat_app/assets/libs/jquery/dist/jquery.min.js' %}"></script> 
+
+</body>
+{% include "includes/js_file.html" %}
+{% include "includes/autocomplete.html" %}
+</html>
+<script>
+$(document).ready(function() {
+   
+    $("#submit_frm").click(function(){
+        FrmValidate();
+        
+    }); 
+
+    $('#date').datepicker({
+
+            dateFormat : 'dd-mm-yy'
+
+    });
+
+    $('#date_start').datepicker({
+
+            dateFormat : 'dd-mm-yy'
+
+    });
+
+    $('#date_end').datepicker({
+
+            dateFormat : 'dd-mm-yy'
+
+    });
+    
+});
+
+function FrmValidate(){
+    $("#frm").validate({
+        
+        rules : {
+            process_name : {
+                required : true,
+            },
+            description : {
+                required : true,
+                
+            }
+            
+        }
+    });
+}
+
+</script>

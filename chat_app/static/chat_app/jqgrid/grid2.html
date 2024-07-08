@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- The jQuery library is a prerequisite for all jqSuite products -->
+   <script type="text/ecmascript" src="js/jquery-1.11.0.min.js"></script> 
+    <!-- We support more than 40 localizations -->
+    <script type="text/ecmascript" src="js/i18n/grid.locale-en.js"></script>
+    <!-- This is the Javascript file of jqGrid -->   
+    <script type="text/ecmascript" src="js/jquery.jqGrid.min.js"></script>
+	<!-- Load pdfmake lib files -->
+<script type="text/javascript" language="javascript" src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>	
+	<script type="text/javascript" language="javascript" src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.34/build/pdfmake.min.js">	</script>
+	<script type="text/javascript" language="javascript" src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.34/build/vfs_fonts.js"></script>
+
+    <!-- A link to a jQuery UI ThemeRoller theme, more than 22 built-in and many more custom --> 
+    <link rel="stylesheet" type="text/css" media="screen" href="css/jquery-ui.css" />
+    <!-- The link to the CSS that the grid needs -->
+    <link rel="stylesheet" type="text/css" media="screen" href="css/ui.jqgrid.css" />
+    <meta charset="utf-8" />
+    <title>jqGrid Export to CSV, PDF, Excel</title>
+</head>
+<body>
+
+  <table id="jqGrid"></table>
+	<button id="export">Conditional Export</button>
+
+
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+			$("#jqGrid").jqGrid({
+				url: 'data1.json',
+				datatype: "json",
+				colModel: [
+					{ label: 'Category Name', name: 'CategoryName', width: 75 },
+					{ label: 'Product Name', name: 'ProductName', width: 90 },
+					{ label: 'Country', name: 'Country', width: 100 },
+					{ 
+						label: 'Price',
+						name: 'Price',
+						width: 80,
+						sorttype: 'number',
+						formatter: 'number',
+						align: 'right'
+					},
+					{
+						label: 'Quantity',
+						name: 'Quantity',
+						width: 80,
+						sorttype: 'integer',
+						formatter : function( value, options) {
+							if( options.isExported) {
+								if(options.exporttype === 'pdf') {
+									return "(" + value + ")";
+								}
+							}
+							return value;
+						}
+					}
+                ],
+								loadonce: true,
+								viewrecords: true,
+                footerrow: true,
+                userDataOnFooter: true, // use the userData parameter of the JSON response to display data on footer
+                width: 780,
+                height: 200,
+                rowNum: 150
+            });
+
+			$("#export").on("click", function(){
+				$("#jqGrid").jqGrid("exportToPdf",{
+					title: 'jqGrid Export to PDF',
+					orientation: 'portrait',
+					pageSize: 'A4',
+					description: 'description of the exported document',
+					customSettings: null,
+					download: 'download',
+					includeLabels : true,
+					includeGroupHeader : true,
+					includeFooter: true,
+					fileName : "jqGridExport.pdf"
+				})
+				$("#jqGrid").jqGrid("exportToExcel",{
+					includeLabels : true,
+					includeGroupHeader : true,
+					includeFooter: true,
+					fileName : "jqGridExport.xlsx",
+					maxlength : 40 // maxlength for visible string data 
+				})
+			})
+        });
+
+    </script>
+
+    
+</body>
+</html>

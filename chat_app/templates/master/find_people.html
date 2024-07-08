@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+{% include "includes/css_file.html" %}
+<link href="{% static 'chat_app/css/custom_css/find_people.css' %}" rel="stylesheet" />
+</head>
+<body>
+
+<div id="main-wrapper">
+    {% include "includes/index.html" %}
+    <div class="page-wrapper">
+        <div class="page-breadcrumb">
+            <div class="row">
+                <div class="col-12 d-flex no-block align-items-center">
+                    <h4 class="page-title">People Suggestion</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <form method="POST" id="frm" name="frm">
+                            {% csrf_token %}
+                            <div class="card-body">
+                                {% for user in data_obj %}
+                                <div class="user-card card p-3">
+                                    <div class="row align-items-center">
+                                        <div class="col-3">
+                                            <img src="{% static 'chat_app/images/avatar.png' %}" alt="User Image">
+                                        </div>
+                                        <div class="col-7">
+                                            <h5>{{ user.username }}</h5>
+                                            <p>{{ user.email }}</p>
+                                        </div>
+                                        <div class="col-2">
+                                            {% if user.id in sent_requests %}
+                                            <button type="button" class="btn btn-secondary" disabled>Request Sent</button>
+                                            {% else %}
+                                            <button type="button" class="btn btn-primary request-user" data-user-id="{{ user.id }}">Request</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'chat_app/assets/libs/jquery/dist/jquery.min.js' %}"></script>
+</body>
+{% include "includes/js_file.html" %}
+{% include "includes/autocomplete.html" %}
+</html>
+
+<script>
+    $(document).ready(function(){
+        $('.request-user').on('click', function(){
+            var userId = $(this).data('user-id');
+            var button = $(this);
+            console.log(userId);
+            var crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+            var data = {"user_id": userId};
+            console.log(data);
+
+            $.ajax({
+                url: "../request_user/",
+                data: data,
+                type: "POST",
+                headers: {
+                    "X-CSRFToken": crf_token
+                },
+                success: function(response) {
+                    console.log(response.status);
+                    button.text('Request Sent');
+                    button.prop('disabled', true);
+                    // Handle success (e.g., display a success message)
+                },
+                error: function(textStatus, errorThrown) {
+                    console.log('Error sending request.');
+                    // Handle error (e.g., display an error message)
+                }
+            });
+        });
+    });
+</script>
