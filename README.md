@@ -18,7 +18,18 @@ Dashboard
 View Friends List
 View Incoming Friend Requests
 
+## Incomplete Aspects and Potential Next Steps
+
+### Frontend Framework
+- **Current Implementation**: The current implementation uses Bootstrap, HTML, and CSS for the frontend. This choice was made to quickly prototype the application and focus on core functionality.
+- **Reasoning**: The use of Bootstrap, HTML, and CSS was chosen due to the developer's current expertise in these technologies. These tools allowed for the rapid development of the application's user interface.
+- **Recommended Next Step**: Given more time and additional resources, the frontend could be refactored to use React. React offers a more robust and scalable solution for building interactive user interfaces, and it would be beneficial for handling the dynamic nature of the chat application. However, this would require learning React or collaborating with a developer who has experience with it.
+
+
+
+
 **Design Choices**
+
 Simple and Clean UI: Focused on a user-friendly and straightforward interface.
 Real-time Chat: Implemented using AJAX for real-time message updates.
 Separation of Concerns: Used Django’s views, models, and templates effectively to separate logic, data, and presentation layers.
