@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
-from django.contrib.auth import authenticate, login, logout
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from .models import FriendRequest, Message
 from django.db.models import Q
@@ -11,7 +11,11 @@ from django.db.utils import IntegrityError
 def dashboard(request):
     return render(request, "dashboard.html")
 
-
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
 @api_view(["GET", "POST"])
 def find_people(request):
     if request.method == "GET":
@@ -30,6 +34,11 @@ def find_people(request):
 
 
 @api_view(["GET", "POST"])
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
 def incoming_requests(request):
     if request.method == "GET":
         friend_requests = FriendRequest.objects.filter(
@@ -61,6 +70,11 @@ def incoming_requests(request):
 
 
 @api_view(["GET", "POST"])
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
 def request_user(request):
     if request.method == "POST":
         is_ajax = request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
@@ -84,6 +98,11 @@ def request_user(request):
 
 
 @api_view(["GET"])
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
 def friends_list(request):
     friends = User.objects.filter(
         id__in=FriendRequest.objects.filter(
@@ -98,6 +117,11 @@ def friends_list(request):
 
 
 @api_view(["GET", "POST"])
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
 def chat(request, user_id=None):
     if user_id:
         friend_requests = FriendRequest.objects.filter(
@@ -138,6 +162,11 @@ def chat(request, user_id=None):
 
 
 @api_view(["GET"])
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
 def get_messages(request, user_id):
     messages = Message.objects.filter(
         (Q(sender=request.user) & Q(receiver_id=user_id))
@@ -169,11 +198,9 @@ def signup(request):
         password = request.POST["password"]
 
         try:
-            # Check if the user already exists by email
             if User.objects.filter(email=email).exists():
                 return JsonResponse({"error": "User already exists."})
 
-            # Create the user with hashed password
             user = User.objects.create_user(             # noqa
                 first_name=first_name,
                 last_name=last_name,
@@ -182,7 +209,6 @@ def signup(request):
                 password=password,
             )
 
-            # return JsonResponse({"success": "User created successfully."})
             return HttpResponseRedirect("/")
 
         except IntegrityError as e:
@@ -190,5 +216,4 @@ def signup(request):
             return JsonResponse({"error": "Username already exists."})
 
         except Exception as e:
-            # General exception handling
             return JsonResponse({"error": str(e)})
